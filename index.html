@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Final Cut Pro Subtitle Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            500: '#64748b',
+                            400: '#94a3b8',
+                            300: '#cbd5e1'
+                        },
+                        blue: {
+                            400: '#60a5fa',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        purple: {
+                            600: '#9333ea',
+                            700: '#7c3aed'
+                        },
+                        green: {
+                            400: '#4ade80'
+                        },
+                        yellow: {
+                            400: '#facc15'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .card-bg {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .waveform-bar {
+            background: linear-gradient(to top, #3b82f6, #8b5cf6);
+        }
+        .subtitle-marker {
+            background: rgba(250, 204, 21, 0.3);
+            border-left: 2px solid #facc15;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Final Cut Pro Subtitle Generator</h1>
+            <p class="text-slate-300 text-lg">Automatically generate perfectly timed bilingual subtitles from voice recordings</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- File Upload Card -->
+                <div class="card-bg border border-slate-700 rounded-lg backdrop-blur-sm">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Import Files
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Translation Script (DOCX/PDF)</label>
+                                <div class="card-bg border border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-slate-700/70 transition-colors">
+                                    <label class="block p-8 cursor-pointer">
+                                        <input id="scriptFile" type="file" accept=".docx,.pdf" class="hidden" />
+                                        <div class="text-center">
+                                            <div class="text-slate-400 mb-3 flex justify-center">
+                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="text-slate-300 mb-2">Drop file here or click to browse</p>
+                                            <p class="text-slate-500 text-sm">Supports DOCX PDF files</p>
+                                            <p id="scriptFileName" class="text-xs mt-1"></p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Voice Recording (MP3/WAV)</label>
+                                <div class="card-bg border border-slate-600 border-dashed rounded-lg cursor-pointer hover:bg-slate-700/70 transition-colors">
+                                    <label class="block p-8 cursor-pointer">
+                                        <input id="voiceFile" type="file" accept=".mp3,.wav" class="hidden" />
+                                        <div class="text-center">
+                                            <div class="text-slate-400 mb-3 flex justify-center">
+                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="text-slate-300 mb-2">Drop file here or click to browse</p>
+                                            <p class="text-slate-500 text-sm">Supports MP3 WAV files</p>
+                                            <p id="voiceFileName" class="text-xs mt-1"></p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-6 border-slate-600" />
+                        <button id="generateBtn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-white font-medium py-2 px-4 rounded-md">
+                            Generate Subtitles
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formatting Controls -->
+                <div class="card-bg border border-slate-700 rounded-lg backdrop-blur-sm">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-white mb-4">Formatting Controls</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="fontFamily" class="block text-sm font-medium text-slate-300 mb-2">Font Family</label>
+                                <select id="fontFamily" class="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white">
+                                    <option>Helvetica</option>
+                                    <option>Arial</option>
+                                    <option>Times New Roman</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="fontSize" class="block text-sm font-medium text-slate-300 mb-2">Font Size: <span id="fontSizeLabel">24</span>px</label>
+                                <input id="fontSize" type="range" min="12" max="48" value="24" class="w-full" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="arabicColor" class="block text-sm font-medium text-slate-300 mb-2">Arabic Color</label>
+                                    <input id="arabicColor" type="color" value="#ffffff" class="w-full h-10 rounded border border-slate-600" />
+                                </div>
+                                <div>
+                                    <label for="englishColor" class="block text-sm font-medium text-slate-300 mb-2">English Color</label>
+                                    <input id="englishColor" type="color" value="#ffffff" class="w-full h-10 rounded border border-slate-600" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column - Voice Analysis -->
+            <div class="lg:col-span-1">
+                <div class="card-bg border border-slate-700 rounded-lg backdrop-blur-sm h-fit">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-white mb-4">Voice Analysis</h2>
+
+                        <!-- Waveform Visualization -->
+                        <div class="bg-slate-900/50 p-4 rounded-lg mb-4">
+                            <div class="flex items-end justify-between h-20 gap-1">
+                                <!-- Mock Waveform Bars -->
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 60%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 80%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 40%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 90%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 70%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 50%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 85%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 30%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 75%"></div>
+                                <div class="waveform-bar flex-1 min-w-[1px] opacity-70" style="height: 65%"></div>
+                            </div>
+
+                            <!-- Subtitle Markers -->
+                            <div class="relative mt-2 h-6">
+                                <div class="subtitle-marker absolute top-0 h-full" style="left: 10%; width: 20%"></div>
+                                <div class="subtitle-marker absolute top-0 h-full" style="left: 35%; width: 25%"></div>
+                                <div class="subtitle-marker absolute top-0 h-full" style="left: 65%; width: 20%"></div>
+                            </div>
+
+                            <div class="text-xs text-slate-400 mt-2 flex justify-between">
+                                <span>0:00</span>
+                                <span>0:11</span>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Stats -->
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="bg-slate-700/50 p-3 rounded">
+                                <div class="text-slate-400">Duration</div>
+                                <div class="text-white font-medium">11s</div>
+                            </div>
+                            <div class="bg-slate-700/50 p-3 rounded">
+                                <div class="text-slate-400">Subtitles</div>
+                                <div class="text-white font-medium">3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Preview & Export -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Subtitle Preview -->
+                <div class="card-bg border border-slate-700 rounded-lg backdrop-blur-sm">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-white mb-4">Subtitle Preview</h2>
+
+                        <div id="subtitlePreview" class="space-y-4 max-h-80 overflow-y-auto">
+                            <!-- Dynamic subtitles will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Panel -->
+                <div class="card-bg border border-slate-700 rounded-lg backdrop-blur-sm">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-white mb-4">Export Options</h2>
+
+                        <div class="space-y-4">
+                            <button id="exportFcpxml" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                                Export for Final Cut Pro (.fcpxml)
+                            </button>
+
+                            <button id="downloadSRT" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                                Download as SRT
+                            </button>
+
+                            <button id="downloadVTT" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                                Download as VTT
+                            </button>
+                        </div>
+
+                        <div class="mt-4 text-sm text-slate-400">
+                            <p>Final Cut Pro format includes timing, positioning, and styling information for seamless import.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
